@@ -1,4 +1,5 @@
 <?php
+
 function route($uri)
 {
     return BASE_URL . "$uri";
@@ -26,3 +27,19 @@ function asset($asset)
     }
     return $assetFile;
 }
+
+// function rooms()
+// {
+//     // Retrieve the current room's data as an associative array
+//     $roomArr = App\Models\Room::getCurrentRoom() ?? [];
+    
+//     // Initialize a new Room object
+//     $room = new App\Models\Room();
+    
+//     // Populate the Room object with data
+//     foreach ($roomArr as $key => $value) {
+//         $room->$key = $value;
+//     }
+    
+//     return $room;
+// }

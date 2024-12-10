@@ -13,6 +13,8 @@ class ApiController
      */
     public function __construct()
     {
+        
+
         $this->jwtHandler = new JwtHandler();
     }
 
@@ -25,13 +27,16 @@ class ApiController
     {
         // Get Authorization header
         $headers = getallheaders();
-        if (!isset($headers['Authorization'])) {
+
+        $authorization = $headers['Authorization'] ?? $headers['authorization'] ?? null;
+
+        if (!isset($authorization)) {
             $this->sendResponse(401, ['message' => 'Authorization header missing']);
             exit;
         }
-
+        
         // Extract token
-        $token = str_replace('Bearer ', '', $headers['Authorization']);
+        $token = str_replace('Bearer ', '', $authorization);
 
         // Validate token
         $payload = $this->jwtHandler->validateToken($token);
@@ -103,4 +108,60 @@ class ApiController
         }
         exit;
     }
+
+    public function profileUpdate($params){
+        
+        // Authenticate the user
+        $this->authenticateRequest();
+
+        $username = trim($params['username']);
+        $profilePicture = $params['profilePicture'];
+
+
+        // Check if valid file types
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!in_array($profilePicture['type'], $allowedTypes)) {
+            $this->sendResponse(400, ['message' => 'Invalid file type. Only JPEG and PNG are allowed']);
+            exit;
+        }
+
+        
+        // Save the uploaded file
+        $uploadDir = __DIR__ . '/../../storage/images/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $newFileName = uniqid('profile_') . '.' . pathinfo($params['profilePicture']['name'], PATHINFO_EXTENSION);
+        $filePath = $uploadDir . $newFileName;
+
+        if (!move_uploaded_file($profilePicture['tmp_name'], $filePath)) {
+            $this->sendResponse(500, ['message' => 'Failed to save the uploaded file']);
+            exit;
+        }
+
+        // Update user data in the database
+        $user = User::find($params['user_id']); // Fetch user from the database
+        if (!$user) {
+            $this->sendResponse(404, ['message' => 'User not found']);
+            exit;
+        }
+
+        $user->username = $username;
+        $user->image_url = $newFileName; // Assuming image_url stores the relative path
+        $updateResult = $user->save();
+
+        if ($updateResult) {
+            $this->sendResponse(200, [
+                'message' => 'Profile updated successfully',
+                'user' => [
+                    'username' => $user->username,
+                    'image_url' => $user->image_url,
+                ],
+            ]);
+        } else {
+            $this->sendResponse(500, ['message' => 'Failed to update profile']);
+        }
+    }
+
 }

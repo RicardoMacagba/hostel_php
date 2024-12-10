@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Helpers\Database;
@@ -219,7 +220,7 @@ class Model
         $stmt = self::$db->prepare($query);
 
         // Bind values
-        foreach($params as $key=>$value) {
+        foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);
         }
 
@@ -344,4 +345,66 @@ class Model
     {
         return (array) $this;
     }
+
+    //to count
+
+    public static function count(array $conditions = [])
+    {
+        $instance = new static();
+        $query = "SELECT COUNT(*) as count FROM {$instance->table}";
+        $params = [];
+
+        if (!empty($conditions)) {
+            $whereClauses = [];
+            foreach ($conditions as $column => $value) {
+                $whereClauses[] = "$column = ?";
+                $params[] = $value;
+            }
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        $stmt = self::$db->prepare($query);
+        $stmt->execute($params);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['count'] ?? 0;
+    }
+
+    // where funtion for room
+
+    public static function where(array $conditions = [])
+    {
+        return self::filter($conditions);
+    }
+
+    // roomFilter
+
+    public static function roomFilter(array $conditions = [])
+{
+    $instance = new static();
+    $query = "SELECT * FROM {$instance->table}";
+    $params = [];
+
+    if (!empty($conditions)) {
+        $whereClauses = [];
+        foreach ($conditions as $column => $value) {
+            $whereClauses[] = "$column = ?";
+            $params[] = $value;
+        }
+        $query .= " WHERE " . implode(" AND ", $whereClauses);
+    }
+
+    $stmt = self::$db->prepare($query);
+    $stmt->execute($params);
+
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $instances = [];
+    foreach ($results as $result) {
+        $instanceCopy = new static();
+        $instanceCopy->mapColumnsToAttributes($result);
+        $instances[] = $instanceCopy;
+    }
+    return $instances;
+}
+
 }

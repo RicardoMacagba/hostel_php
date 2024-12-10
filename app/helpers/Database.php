@@ -1,5 +1,6 @@
 <?php
 namespace App\Helpers;
+
 use PDO;
 use PDOException;
 
@@ -8,7 +9,7 @@ class Database {
 
     public function __construct() {
         // Get config values
-        $config = require_once __DIR__.'/../../config/db.php';
+        $config = require_once __DIR__.'/../../config/database.php';
 
         try {
             $this->db = new PDO(

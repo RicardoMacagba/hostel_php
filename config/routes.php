@@ -26,22 +26,24 @@
 use App\Controllers\ApiController;
 use App\Controllers\HomeController;
 use App\Controllers\UserController;
+use App\Controllers\RoomController;
 
 
 // List all routes or address that can be visited in your application
 return [
-    '/' => [App\Controllers\RoomController::class, 'index'], //[Controller class, Controller method]
+    '/' => [HomeController::class, 'index'], //[Controller class, Controller method]
     '/login' => [UserController::class,'login'],
     '/users' => [UserController::class,'users'],
     '/register' => [UserController::class,'register'],
     '/logout' => [UserController::class,'logout'],
     '/changePicture' =>[UserController::class, 'changePicture'],
-    '/register' => [App\Controllers\UserController::class, 'register'],
-    
-    
-    //'/sample-api-request' =>[RoomController::class, 'sampleApiRequest'],
+    '/sample-api-request' =>[HomeController::class, 'sampleApiRequest'],
+    '/table_room' =>[RoomController::class, 'listRooms'],
+
 
     //Api routes
     '/api/users' => [ApiController::class,'users'],
     '/api/login' => [ApiController::class,'login'],
+    '/api/profile-update' => [ApiController::class, 'profileUpdate'],
+    //'/api/add_rooms' => [ApiController::class, 'add_rooms'],
 ];

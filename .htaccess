@@ -1,14 +1,29 @@
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
+
+# Enable URL rewriting
+RewriteEngine On 
+
+# Set the base URL for rewrite rules
+RewriteBase /hostel_php/
+
+# Allow direct access to the public/images files
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
+RewriteCond %{REQUEST_URI} ^/hostel_php/public/images/ [NC]
+RewriteRule .* - [L]
 
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /your_project_directory/
+# Allow direct access to the public/js files
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/hostel_php/public/js/ [NC]
+RewriteRule .* - [L]
 
-    # Redirect all requests to the front controller
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ public/index.php [L]
-</IfModule>
+# Allow direct access to the public/css files
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/hostel_php/public/css/ [NC]
+RewriteRule .* - [L]
+
+# Allow direct access to the storage/images files
+RewriteCond %{REQUEST_URI} ^/hostel_php/storage/images/ [NC]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule .* - [L]
+
+# Rewrite all other requests to public/index.php
+RewriteRule ^(.*)$ public/index.php [L]

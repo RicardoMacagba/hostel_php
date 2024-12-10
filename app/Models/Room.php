@@ -1,46 +1,74 @@
 <?php
+
 namespace App\Models;
 
-use PDO;
+class Room extends Model
+{
+    public function __construct()
+    {
+        // Specify the table name
+        parent::__construct('rooms');
+        
+        // Specify the primary key
+        $this->primaryKey = 'id';
 
-class Room {
-    private $pdo;
-
-    public function __construct($pdo) {
-        $this->pdo = $pdo;
+        // Set validation rules for the model
+        $this->setRules([
+            'room_name' => ['required' => true, 'maxLength' => 255],
+            'room_type' => ['required' => true, 'maxLength' => 255],
+            'price'     => ['required' => true, 'numeric' => true, 'minValue' => 0],
+        ]);
     }
 
-    // Fetch all rooms
-    public function getAllRooms() {
-        $stmt = $this->pdo->query("SELECT * FROM rooms");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    /**
+     * Get a human-readable type of the room.
+     *
+     * @return string
+     */
+    public function getRoomTypeLabel()
+    {
+        $types = [
+            'standard' => 'Standard Room',
+            'luxury'   => 'Luxury Room',
+            'suite'    => 'Suite',
+        ];
+
+        return $types[$this->room_type] ?? 'Unknown';
     }
 
-    // Fetch a room by ID
-    public function getRoomById($roomId) {
-        $stmt = $this->pdo->prepare("SELECT * FROM rooms WHERE room_id = :room_id");
-        $stmt->bindParam(':room_id', $roomId, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+    /**
+     * Format the room price for display.
+     *
+     * @return string
+     */
+    public function getFormattedPrice()
+    {
+        return "$" . number_format($this->price, 2);
     }
 
-    // Add a new room
-    public function addRoom($roomData) {
-        $stmt = $this->pdo->prepare("INSERT INTO rooms (room_type, room_description, room_price, room_image) VALUES (:type, :description, :price, :image)");
-        return $stmt->execute($roomData);
+    /**
+     * Get all rooms of a specific type.
+     *
+     * @param string $type
+     * @return Room[]
+     */
+    public static function getRoomsByType($type)
+    {
+        return self::filter(['room_type =' => $type]);
     }
 
-    // Update a room
-    public function updateRoom($roomId, $roomData) {
-        $stmt = $this->pdo->prepare("UPDATE rooms SET room_type = :type, room_description = :description, room_price = :price, room_image = :image WHERE room_id = :room_id");
-        $roomData['room_id'] = $roomId;
-        return $stmt->execute($roomData);
-    }
-
-    // Delete a room
-    public function deleteRoom($roomId) {
-        $stmt = $this->pdo->prepare("DELETE FROM rooms WHERE room_id = :room_id");
-        $stmt->bindParam(':room_id', $roomId, PDO::PARAM_INT);
-        return $stmt->execute();
+    /**
+     * Get rooms within a specific price range.
+     *
+     * @param float $min
+     * @param float $max
+     * @return Room[]
+     */
+    public static function getRoomsByPriceRange($min, $max)
+    {
+        return self::filter([
+            'price >=' => $min,
+            'AND price <=' => $max,
+        ]);
     }
 }

@@ -24,13 +24,15 @@ use App\Controllers\ErrorController;
 $uri = $_SERVER["REQUEST_URI"];
 
 // Clean URL to get action
-//$uri = str_replace(BASE_URL, "", parse_url($uri)['path']);
+$uri = str_replace(BASE_URL, "", parse_url($uri)['path']);
 
 $routes = require_once(__DIR__ . "/../config/routes.php");
 
 $guestRoutes = [
     '/login',
     '/register',
+    '/table_room',
+
     // Add more routes available to guests
 ];
 

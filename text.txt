@@ -1,0 +1,9 @@
+mysql -u root-p
+pass:
+
+source e :\xammp\htdocs\file_name\sql_db.sql
+
+describe columns
+
+
+MVC to make the hostel output

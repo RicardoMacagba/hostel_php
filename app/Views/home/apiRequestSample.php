@@ -7,6 +7,7 @@ $menuItems = [
     ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => route('/'), 'active' => false],
     ['label' => 'Users', 'icon' => 'group', 'route' => route('/users'), 'active' => false],
     ['label' => 'Sample API Request', 'icon' => 'api', 'route' => route('/sample-api-request'), 'active' => true],
+    ['label' => 'Room', 'icon' => 'hotel', 'route' => route('/table_room'), 'active' => false]
 ];
 ?>
 
