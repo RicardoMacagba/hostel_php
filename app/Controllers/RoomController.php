@@ -27,8 +27,8 @@ class RoomController extends Controller
         if (!empty($params)) {
             $this->validateCsrfToken($params);
 
-            $model->room_name = $params['room_name'];
-            $model->room_type = $params['room_type'];
+            $model->room_name = $params['name'];
+            $model->room_type = $params['type'];
             $model->price = $params['price'];
 
             if ($model->validate()) {
@@ -46,7 +46,7 @@ class RoomController extends Controller
             }
         }
 
-        $this->view('room/add', [
+        $this->view('room/add_rooms', [
             'model' => $model,
         ]);
     }

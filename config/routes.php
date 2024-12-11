@@ -45,5 +45,5 @@ return [
     '/api/users' => [ApiController::class,'users'],
     '/api/login' => [ApiController::class,'login'],
     '/api/profile-update' => [ApiController::class, 'profileUpdate'],
-    //'/api/add_rooms' => [ApiController::class, 'add_rooms'],
+    //'/api/add_rooms' => [ApiController::class, 'addRooms'],
 ];

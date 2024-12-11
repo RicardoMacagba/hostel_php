@@ -14,8 +14,8 @@ class Room extends Model
 
         // Set validation rules for the model
         $this->setRules([
-            'room_name' => ['required' => true, 'maxLength' => 255],
-            'room_type' => ['required' => true, 'maxLength' => 255],
+            'name' => ['required' => true, 'maxLength' => 255],
+            'type' => ['required' => true, 'maxLength' => 255],
             'price'     => ['required' => true, 'numeric' => true, 'minValue' => 0],
         ]);
     }
