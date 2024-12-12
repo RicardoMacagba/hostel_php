@@ -166,67 +166,56 @@ class ApiController
         }
     }
 
-    // public function register($params)
-    // {
-    //     // Validate required parameters
-    //     $requiredFields = ['username', 'email', 'password'];
-    //     foreach ($requiredFields as $field) {
-    //         if (empty($params[$field])) {
-    //             $this->sendResponse(400, [
-    //                 'message' => "Missing required field: $field"
-    //             ]);
-    //             return;
-    //         }
-    //     }
+    /**
+     * Handle user registration
+     * 
+     * @param array $params Registration parameters
+     */
+    public function register($params)
+    {
+        // Input validation
+        $email = trim($params['email'] ?? '');
+        $password = $params['password'] ?? '';
+        $username = trim($params['username'] ?? '');
 
-    //     // Extract parameters
-    //     $username = trim($params['username']);
-    //     $email = trim($params['email']);
-    //     $password = $params['password'];
+        if (empty($email) || empty($password) || empty($username)) {
+            $this->sendResponse(400, ['message' => 'Email, username, and password are required']);
+            return;
+        }
 
-    //     // Validate email format
-    //     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    //         $this->sendResponse(400, [
-    //             'message' => 'Invalid email format'
-    //         ]);
-    //         return;
-    //     }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->sendResponse(400, ['message' => 'Invalid email format']);
+            return;
+        }
 
-    //     // Check if the email is already registered
-    //     $userModel = new User();
-    //     $existingUser = $userModel->findByEmail($email);
-    //     if ($existingUser) {
-    //         $this->sendResponse(409, [
-    //             'message' => 'Email is already registered'
-    //         ]);
-    //         return;
-    //     }
+        if (strlen($password) < 6) {
+            $this->sendResponse(400, ['message' => 'Password must be at least 6 characters long']);
+            return;
+        }
+        //echo "wowopet";
 
-    //     // Hash the password
-    //     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        // Create a new user
+        $user = new User();
+        $user->email = $email;
+        $user->password = password_hash($password, PASSWORD_DEFAULT); // Securely hash the password
+        $user->username = $username;
 
-    //     // Create a new user instance
-    //     $user = new User();
-    //     $user->username = $username;
-    //     $user->email = $email;
-    //     $user->password = $hashedPassword;
+        if ($user->save()) {
+            // Respond with a success message
+            $this->sendResponse(201, [
+                'message' => 'User registered successfully',
+                'user' => [
+                    'user_id' => $user->user_id,
+                    'email' => $user->email,
+                    'username' => $user->username,
+                ],
+            ]);
+        } else {
+            // Handle failure to save
+            $this->sendResponse(500, ['message' => 'Failed to register user']);
+        }
+    }
 
-    //     // Save the user to the database
-    //     if ($user->save()) {
-    //         $this->sendResponse(201, [
-    //             'message' => 'User registered successfully',
-    //             'user' => [
-    //                 'user_id' => $user->user_id,
-    //                 'username' => $user->username,
-    //                 'email' => $user->email
-    //             ]
-    //         ]);
-    //     } else {
-    //         $this->sendResponse(500, [
-    //             'message' => 'Failed to register user'
-    //         ]);
-    //     }
-    // }
 
 
 

@@ -33,7 +33,7 @@ class Room extends Model
             'suite'    => 'Suite',
         ];
 
-        return $types[$this->room_type] ?? 'Unknown';
+        return $types[$this->type] ?? 'Unknown';
     }
 
     /**
@@ -77,5 +77,27 @@ class Room extends Model
         $model->room_name = $params['name'] ?? null;
         $model->room_type = $params['type'] ?? null;
         $model->price = $params['price'] ?? null;
+    }
+
+    /**
+     * Update room attributes and save to the database.
+     *
+     * @param array $params Attributes to update (name, type, price)
+     * @return bool Whether the update was successful
+     */
+    public function editRoom($params)
+    {
+        // Assign attributes
+        $this->room_name = $params['name'] ?? $this->room_name;
+        $this->room_type = $params['type'] ?? $this->room_type;
+        $this->price = $params['price'] ?? $this->price;
+
+        // Validate the model
+        if (!$this->validate()) {
+            return false;
+        }
+
+        // Save the model
+        return $this->save();
     }
 }

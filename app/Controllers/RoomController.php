@@ -98,47 +98,20 @@ class RoomController extends Controller
      */
     public function editRooms($params)
     {
-        $this->pageTitle = 'editRooms';
+        $this->pageTitle = 'Edit Room';
 
-        $rooms = [];
+        // Ensure room data is initialized
+        $room = [];
 
-        if (!isset($params['id'])) {
-            self::redirect('/editRooms'); // Redirect if no room ID is provided
-        }
 
-        $rooms = Room::find($params['id']);
 
-        if (!$rooms) {
-            $this->errors[] = "Room not found.";
-            self::redirect('/editRooms');
-        }
-
-        if (!empty($params)) {
-            $this->validateCsrfToken($params);
-
-            $rooms->room_name = $params['name'];
-            $rooms->room_type = $params['type'];
-            $rooms->price = $params['price'];
-
-            if ($rooms->validate()) {
-                if ($rooms->save()) {
-                    self::redirect('/editRooms'); // Redirect after saving
-                } else {
-                    $this->errors[] = "Failed to update the room.";
-                }
-            } else {
-                foreach ($rooms->getErrors() as $field => $errors) {
-                    foreach ($errors as $error) {
-                        $this->errors[] = $error;
-                    }
-                }
-            }
-        }
-
+        // Render the edit room view
         $this->view('rooms/edit_rooms', [
-            'editRooms' => $rooms,
+            'room' => $room,
+            'errors' => $this->errors,
         ]);
     }
+
 
     /**
      * Delete a room

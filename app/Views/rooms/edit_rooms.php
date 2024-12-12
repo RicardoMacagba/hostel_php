@@ -24,7 +24,11 @@ $menuItems = [
 
         <div>
             <label for="type" class="block text-sm font-medium text-gray-700">Room Type</label>
-            <!-- wa -->
+            <select id="type" name="type" class="border border-gray-300 p-2 rounded-md w-full" required>
+                <option value="Single" <?= ($room->type ?? '') === 'Single' ? 'selected' : '' ?>>Single</option>
+                <option value="Double" <?= ($room->type ?? '') === 'Double' ? 'selected' : '' ?>>Double</option>
+                <option value="Suite" <?= ($room->type ?? '') === 'Suite' ? 'selected' : '' ?>>Suite</option>
+            </select>
         </div>
 
         <div>
@@ -34,7 +38,7 @@ $menuItems = [
         </div>
 
         <div class="flex justify-end space-x-4">
-            <a href="<?= route('/table_room') ?>" class="text-gray-700 bg-gray-200 py-2 px-4 rounded-md hover:bg-gray-300">Cancel</a>
+            <a href="<?= route('/listRooms') ?>" class="text-gray-700 bg-gray-200 py-2 px-4 rounded-md hover:bg-gray-300">Cancel</a>
             <button type="submit" class="text-white bg-blue-500 py-2 px-4 rounded-md hover:bg-blue-600">Save Changes</button>
         </div>
     </form>
