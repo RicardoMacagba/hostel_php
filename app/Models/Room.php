@@ -71,4 +71,11 @@ class Room extends Model
             'AND price <=' => $max,
         ]);
     }
+
+    public function assignRoomAttributes($model, $params)
+    {
+        $model->room_name = $params['room_name'] ?? null;
+        $model->room_type = $params['room_type'] ?? null;
+        $model->price = $params['price'] ?? null;
+    }
 }

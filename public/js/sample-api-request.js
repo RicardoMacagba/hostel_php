@@ -1,5 +1,5 @@
 // Function to login and fetch users
-const apiUrl = `${window.location.protocol}//${window.location.host}/php_oop`;
+const apiUrl = `${window.location.protocol}//${window.location.host}/hostel_php`;
 
 async function login() {
     const email = document.getElementById('email').value;

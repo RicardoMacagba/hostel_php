@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Helpers\JWTHandler;
@@ -13,7 +14,7 @@ class ApiController
      */
     public function __construct()
     {
-        
+
 
         $this->jwtHandler = new JwtHandler();
     }
@@ -34,7 +35,7 @@ class ApiController
             $this->sendResponse(401, ['message' => 'Authorization header missing']);
             exit;
         }
-        
+
         // Extract token
         $token = str_replace('Bearer ', '', $authorization);
 
@@ -72,7 +73,7 @@ class ApiController
         // Fetch all users using the User model
         $users = User::findAll();
 
-        $userData = array_map(function($user) {
+        $userData = array_map(function ($user) {
             return [
                 'user_id' => $user->user_id,
                 'username' => $user->username,
@@ -109,8 +110,9 @@ class ApiController
         exit;
     }
 
-    public function profileUpdate($params){
-        
+    public function profileUpdate($params)
+    {
+
         // Authenticate the user
         $this->authenticateRequest();
 
@@ -125,7 +127,7 @@ class ApiController
             exit;
         }
 
-        
+
         // Save the uploaded file
         $uploadDir = __DIR__ . '/../../storage/images/';
         if (!is_dir($uploadDir)) {
@@ -163,6 +165,70 @@ class ApiController
             $this->sendResponse(500, ['message' => 'Failed to update profile']);
         }
     }
+
+    // public function register($params)
+    // {
+    //     // Validate required parameters
+    //     $requiredFields = ['username', 'email', 'password'];
+    //     foreach ($requiredFields as $field) {
+    //         if (empty($params[$field])) {
+    //             $this->sendResponse(400, [
+    //                 'message' => "Missing required field: $field"
+    //             ]);
+    //             return;
+    //         }
+    //     }
+
+    //     // Extract parameters
+    //     $username = trim($params['username']);
+    //     $email = trim($params['email']);
+    //     $password = $params['password'];
+
+    //     // Validate email format
+    //     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    //         $this->sendResponse(400, [
+    //             'message' => 'Invalid email format'
+    //         ]);
+    //         return;
+    //     }
+
+    //     // Check if the email is already registered
+    //     $userModel = new User();
+    //     $existingUser = $userModel->findByEmail($email);
+    //     if ($existingUser) {
+    //         $this->sendResponse(409, [
+    //             'message' => 'Email is already registered'
+    //         ]);
+    //         return;
+    //     }
+
+    //     // Hash the password
+    //     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+    //     // Create a new user instance
+    //     $user = new User();
+    //     $user->username = $username;
+    //     $user->email = $email;
+    //     $user->password = $hashedPassword;
+
+    //     // Save the user to the database
+    //     if ($user->save()) {
+    //         $this->sendResponse(201, [
+    //             'message' => 'User registered successfully',
+    //             'user' => [
+    //                 'user_id' => $user->user_id,
+    //                 'username' => $user->username,
+    //                 'email' => $user->email
+    //             ]
+    //         ]);
+    //     } else {
+    //         $this->sendResponse(500, [
+    //             'message' => 'Failed to register user'
+    //         ]);
+    //     }
+    // }
+
+
 
     // api controller for adding a rooms
 

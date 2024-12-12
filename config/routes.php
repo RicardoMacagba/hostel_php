@@ -39,11 +39,13 @@ return [
     '/changePicture' =>[UserController::class, 'changePicture'],
     '/sample-api-request' =>[HomeController::class, 'sampleApiRequest'],
     '/table_room' =>[RoomController::class, 'listRooms'],
+    '/add_rooms' =>[RoomController::class, 'addRooms'],
 
 
     //Api routes
     '/api/users' => [ApiController::class,'users'],
     '/api/login' => [ApiController::class,'login'],
+    '/api/register' => [ApiController::class,'register'],
     '/api/profile-update' => [ApiController::class, 'profileUpdate'],
-    //'/api/add_rooms' => [ApiController::class, 'addRooms'],
+    '/api/add_rooms' => [ApiController::class, 'addRooms'],
 ];

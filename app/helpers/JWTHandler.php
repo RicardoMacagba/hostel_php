@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helpers;
 
 class JWTHandler
@@ -9,9 +10,9 @@ class JWTHandler
     public function __construct()
     {
         // Get config values
-        require_once __DIR__.'/../../config/config.php';
+        require_once __DIR__ . '/../../config/config.php';
 
-        $this->secretKey =JWT_SECRET_KEY; // Replace with your secret key
+        $this->secretKey = JWT_SECRET_KEY; // Replace with your secret key
         $this->algorithm = 'HS256'; // HMAC with SHA-256
     }
 
@@ -60,12 +61,5 @@ class JWTHandler
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
-
-    private function assignRoomAttributes($model, $params)
-{
-    $model->room_name = $params['room_name'] ?? null;
-    $model->room_type = $params['room_type'] ?? null;
-    $model->price = $params['price'] ?? null;
-}
-
+    
 }
