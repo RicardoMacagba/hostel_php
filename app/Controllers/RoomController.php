@@ -58,7 +58,7 @@ class RoomController extends Controller
      */
     public function listRooms($params)
     {
-        $this->pageTitle = 'table_room';
+        $this->pageTitle = 'rooms';
         $rooms = [];
 
         // Handle deletion
@@ -76,8 +76,8 @@ class RoomController extends Controller
         if (isset($params['q'])) {
             $q = "%" . $params['q'] . "%";
             $rooms = Room::filter([
-                "room_name LIKE" => $q,
-                "OR room_type LIKE" => $q,
+                "name LIKE" => $q,
+                "OR type LIKE" => $q,
             ]);
         }
 
@@ -96,36 +96,38 @@ class RoomController extends Controller
      *
      * @param array $params
      */
-    public function editRoom($params)
+    public function editRooms($params)
     {
-        $this->pageTitle = 'Edit Room';
+        $this->pageTitle = 'editRooms';
 
-        if (!isset($params['room_id'])) {
-            self::redirect('/rooms'); // Redirect if no room ID is provided
+        $rooms = [];
+
+        if (!isset($params['id'])) {
+            self::redirect('/editRooms'); // Redirect if no room ID is provided
         }
 
-        $model = Room::find($params['room_id']);
+        $rooms = Room::find($params['id']);
 
-        if (!$model) {
+        if (!$rooms) {
             $this->errors[] = "Room not found.";
-            self::redirect('/rooms');
+            self::redirect('/editRooms');
         }
 
         if (!empty($params)) {
             $this->validateCsrfToken($params);
 
-            $model->room_name = $params['room_name'];
-            $model->room_type = $params['room_type'];
-            $model->price = $params['price'];
+            $rooms->room_name = $params['name'];
+            $rooms->room_type = $params['type'];
+            $rooms->price = $params['price'];
 
-            if ($model->validate()) {
-                if ($model->save()) {
-                    self::redirect('/rooms'); // Redirect after saving
+            if ($rooms->validate()) {
+                if ($rooms->save()) {
+                    self::redirect('/editRooms'); // Redirect after saving
                 } else {
                     $this->errors[] = "Failed to update the room.";
                 }
             } else {
-                foreach ($model->getErrors() as $field => $errors) {
+                foreach ($rooms->getErrors() as $field => $errors) {
                     foreach ($errors as $error) {
                         $this->errors[] = $error;
                     }
@@ -133,8 +135,8 @@ class RoomController extends Controller
             }
         }
 
-        $this->view('room/edit', [
-            'model' => $model,
+        $this->view('rooms/edit_rooms', [
+            'editRooms' => $rooms,
         ]);
     }
 

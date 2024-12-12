@@ -54,7 +54,7 @@ class Room extends Model
      */
     public static function getRoomsByType($type)
     {
-        return self::filter(['room_type =' => $type]);
+        return self::filter(['type =' => $type]);
     }
 
     /**
@@ -74,8 +74,8 @@ class Room extends Model
 
     public function assignRoomAttributes($model, $params)
     {
-        $model->room_name = $params['room_name'] ?? null;
-        $model->room_type = $params['room_type'] ?? null;
+        $model->room_name = $params['name'] ?? null;
+        $model->room_type = $params['type'] ?? null;
         $model->price = $params['price'] ?? null;
     }
 }

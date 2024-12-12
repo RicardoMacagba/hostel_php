@@ -50,7 +50,7 @@ $menuItems = [
                     <td class="py-3 px-4 text-sm text-gray-700"><?= htmlspecialchars($room->type) ?></td>
                     <td class="py-3 px-4 text-sm text-gray-700">₱<?= number_format($room->price, 2) ?></td>
                     <td class="py-3 px-4 text-sm text-gray-700">
-                        <a href="<?= route('/editRoom', ['room_id' => $room->id]) ?>" class="flex items-center text-white bg-green-500 border border-green-500 py-2 px-4 rounded-md hover:bg-green-600 hover:border-green-600">
+                        <a href="<?= route('/edit_rooms', ['id' => $room->id]) ?>" class="flex items-center text-white bg-green-500 border border-green-500 py-2 px-4 rounded-md hover:bg-green-600 hover:border-green-600">
                             <span class="material-icons mr-2">edit</span>
                             <span>Edit</span>
                         </a>

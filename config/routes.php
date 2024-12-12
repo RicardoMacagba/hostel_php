@@ -39,7 +39,8 @@ return [
     '/changePicture' =>[UserController::class, 'changePicture'],
     '/sample-api-request' =>[HomeController::class, 'sampleApiRequest'],
     '/table_room' =>[RoomController::class, 'listRooms'],
-    '/add_rooms' =>[RoomController::class, 'addRooms'],
+    //'/add_rooms' =>[RoomController::class, 'addRooms'],
+    //'/edit_rooms' =>[RoomController::class, 'editRoom'],
 
 
     //Api routes
