@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Helpers\JWTHandler;
 use App\Models\User;
+use App\Models\Room;
 
 class ApiController
 {
@@ -216,9 +217,165 @@ class ApiController
         }
     }
 
-
-
-
     // api controller for adding a rooms
+    /**
+ * List all rooms
+ */
+public function listRooms()
+{
+    // Authenticate the user
+    $this->authenticateRequest();
+
+    // Fetch all rooms using the Room model
+    try {
+        $rooms = Room::findAll();
+
+        if (empty($rooms)) {
+            $this->sendResponse(404, ['message' => 'No rooms found']);
+            return;
+        }
+
+        // Format room data for the response
+        $roomData = array_map(function ($room) {
+            return [
+                'id' => $room->id,
+                'name' => $room->name,
+                'type' => $room->type,
+                'price' => $room->price,
+                'status' => $room->status,
+            ];
+        }, $rooms);
+
+        // Send response with the list of rooms
+        $this->sendResponse(200, ['rooms' => $roomData]);
+    } catch (\Exception $e) {
+        $this->sendResponse(500, ['message' => 'An error occurred while fetching rooms', 'error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Add a new room
+ *
+ * @param array $params Room parameters
+ */
+public function addRoom($params)
+{
+    // Authenticate the user
+    $this->authenticateRequest();
+
+    // Input validation
+    $name = trim($params['name'] ?? '');
+    $type = trim($params['type'] ?? '');
+    $price = trim($params['price'] ?? '');
+    $status = $params['status'] ?? 'available'; // Default status
+
+    if (empty($name) || empty($type) || !is_numeric($price) || $price < 0) {
+        $this->sendResponse(400, ['message' => 'Invalid input. Name, type, and valid price are required']);
+        return;
+    }
+
+    try {
+        // Create new Room instance
+        $room = new Room();
+        $room->name = $name;
+        $room->type = $type;
+        $room->price = (float) $price;
+        $room->status = $status;
+
+        // Save room to the database
+        if ($room->save()) {
+            $this->sendResponse(201, [
+                'message' => 'Room added successfully',
+                'room' => [
+                    'id' => $room->id,
+                    'name' => $room->name,
+                    'type' => $room->type,
+                    'price' => $room->price,
+                    'status' => $room->status,
+                ],
+            ]);
+        } else {
+            $this->sendResponse(500, ['message' => 'Failed to add room']);
+        }
+    } catch (\Exception $e) {
+        $this->sendResponse(500, ['message' => 'An error occurred while adding the room', 'error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Update room details
+ *
+ * @param array $params Room parameters
+ */
+public function updateRoom($params)
+{
+    $this->authenticateRequest();
+
+    $roomId = $params['id'] ?? null;
+    $name = trim($params['name'] ?? '');
+    $type = trim($params['type'] ?? '');
+    $price = trim($params['price'] ?? '');
+    $status = trim($params['status'] ?? '');
+
+    if (empty($roomId) || (!is_numeric($price) && !empty($price)) || $price < 0) {
+        $this->sendResponse(400, ['message' => 'Invalid room ID or input']);
+        return;
+    }
+
+    try {
+        $room = Room::find($roomId);
+        if (!$room) {
+            $this->sendResponse(404, ['message' => 'Room not found']);
+            return;
+        }
+
+        if ($name) $room->name = $name;
+        if ($type) $room->type = $type;
+        if ($price) $room->price = (float) $price;
+        if ($status) $room->status = $status;
+
+        if ($room->save()) {
+            $this->sendResponse(200, ['message' => 'Room updated successfully', 'room' => $room]);
+        } else {
+            $this->sendResponse(500, ['message' => 'Failed to update room']);
+        }
+    } catch (\Exception $e) {
+        $this->sendResponse(500, ['message' => 'An error occurred while updating the room', 'error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Delete a room
+ *
+ * @param array $params Room ID
+ */
+public function deleteRoom($params)
+{
+    $this->authenticateRequest();
+
+    $roomId = $params['id'] ?? null;
+
+    if (empty($roomId)) {
+        $this->sendResponse(400, ['message' => 'Room ID is required']);
+        return;
+    }
+
+    try {
+        $room = Room::find($roomId);
+        if (!$room) {
+            $this->sendResponse(404, ['message' => 'Room not found']);
+            return;
+        }
+
+        if ($room->delete()) {
+            $this->sendResponse(200, ['message' => 'Room deleted successfully']);
+        } else {
+            $this->sendResponse(500, ['message' => 'Failed to delete room']);
+        }
+    } catch (\Exception $e) {
+        $this->sendResponse(500, ['message' => 'An error occurred while deleting the room', 'error' => $e->getMessage()]);
+    }
+}
+
 
 }

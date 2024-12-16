@@ -38,7 +38,7 @@ $menuItems = [
         </div>
 
         <div class="flex justify-end space-x-4">
-            <a href="<?= route('/listRooms') ?>" class="text-gray-700 bg-gray-200 py-2 px-4 rounded-md hover:bg-gray-300">Cancel</a>
+            <a href="<?= route('/table_user') ?>" class="text-gray-700 bg-gray-200 py-2 px-4 rounded-md hover:bg-gray-300">Cancel</a>
             <button type="submit" class="text-white bg-blue-500 py-2 px-4 rounded-md hover:bg-blue-600">Save Changes</button>
         </div>
     </form>

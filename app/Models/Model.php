@@ -380,31 +380,39 @@ class Model
     // roomFilter
 
     public static function roomFilter(array $conditions = [])
-{
-    $instance = new static();
-    $query = "SELECT * FROM {$instance->table}";
-    $params = [];
+    {
+        $instance = new static();
+        $query = "SELECT * FROM {$instance->table}";
+        $params = [];
 
-    if (!empty($conditions)) {
-        $whereClauses = [];
-        foreach ($conditions as $column => $value) {
-            $whereClauses[] = "$column = ?";
-            $params[] = $value;
+        if (!empty($conditions)) {
+            $whereClauses = [];
+            foreach ($conditions as $column => $value) {
+                $whereClauses[] = "$column = ?";
+                $params[] = $value;
+            }
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
         }
-        $query .= " WHERE " . implode(" AND ", $whereClauses);
+
+        $stmt = self::$db->prepare($query);
+        $stmt->execute($params);
+
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $instances = [];
+        foreach ($results as $result) {
+            $instanceCopy = new static();
+            $instanceCopy->mapColumnsToAttributes($result);
+            $instances[] = $instanceCopy;
+        }
+        return $instances;
     }
 
-    $stmt = self::$db->prepare($query);
-    $stmt->execute($params);
+    public function getRoomById($roomId)
+    {
+        $db = new PDO('mysql:host=localhost;dbname=your_database', 'username', 'password');
+        $stmt = $db->prepare("SELECT * FROM rooms WHERE id = :id");
+        $stmt->execute(['id' => $roomId]);
 
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $instances = [];
-    foreach ($results as $result) {
-        $instanceCopy = new static();
-        $instanceCopy->mapColumnsToAttributes($result);
-        $instances[] = $instanceCopy;
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
-    return $instances;
-}
-
 }

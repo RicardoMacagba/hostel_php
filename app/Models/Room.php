@@ -2,23 +2,61 @@
 
 namespace App\Models;
 
+use PDO;
+
 class Room extends Model
 {
     public function __construct()
     {
         // Specify the table name
         parent::__construct('rooms');
-        
+
         // Specify the primary key
         $this->primaryKey = 'id';
 
         // Set validation rules for the model
+        // Define validation rules for the Room model
         $this->setRules([
-            'name' => ['required' => true, 'maxLength' => 255],
-            'type' => ['required' => true, 'maxLength' => 255],
-            'price'     => ['required' => true, 'numeric' => true, 'minValue' => 0],
+            'name' => [
+                'required' => true,
+                'maxLength' => 255,
+            ],
+            'type' => [
+                'required' => true,
+                'maxLength' => 255,
+            ],
+            'capacity' => [
+                'required' => true,
+                'numeric' => true,
+                'minValue' => 1,
+            ],
+            'price' => [
+                'required' => true,
+                'numeric' => true,
+                'minValue' => 0,
+            ],
+            'status' => [
+                'required' => true,
+                'inArray' => ['available', 'unavailable'],
+            ],
         ]);
     }
+
+    public function setSession()
+    {
+
+
+        // Store room details in the session
+        $_SESSION['rooms'] = [
+            'id' => $this->id,
+            'name' => $this->name,
+            'type' => $this->type,
+            'capacity' => $this->capacity,
+            'price' => $this->price,
+            'status' => $this->status,
+        ];
+    }
+
 
     /**
      * Get a human-readable type of the room.
@@ -43,7 +81,7 @@ class Room extends Model
      */
     public function getFormattedPrice()
     {
-        return "$" . number_format($this->price, 2);
+        return "P" . number_format($this->price, 2);
     }
 
     /**
@@ -99,5 +137,50 @@ class Room extends Model
 
         // Save the model
         return $this->save();
+    }
+
+
+    public function getRoomById($params)
+    {
+        // Extract the room ID from the request parameters
+        $roomId = $params['id'] ?? null;
+
+        if (!$roomId) {
+            return [
+                'error' => 'Room ID is required',
+            ];
+        }
+
+        // Fetch the room from the database
+        $room = Room::find($roomId);
+
+        if (!$room) {
+            return [
+                'error' => 'Room not found',
+            ];
+        }
+
+        // Return the room data
+        return [
+            'rooms' => $room,
+        ];
+    }
+
+    public function addRooms()
+    {
+        $query = "INSERT INTO {$this->table} (name, type, capacity, price, status, created_at, updated_at)
+              VALUES (:name, :type, :capacity, :price, :status, NOW(), NOW())";
+
+        $stmt = self::$db->prepare($query);
+
+        // Bind the room attributes to the query
+        $stmt->bindParam(':name', $this->name);
+        $stmt->bindParam(':type', $this->type);
+        $stmt->bindParam(':capacity', $this->capacity, PDO::PARAM_INT);
+        $stmt->bindParam(':price', $this->price, PDO::PARAM_STR); // Use string for decimal values
+        $stmt->bindParam(':status', $this->status);
+
+        // Execute the query and return true if successful, false otherwise
+        return $stmt->execute();
     }
 }

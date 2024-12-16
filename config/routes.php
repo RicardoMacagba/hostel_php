@@ -39,7 +39,8 @@ return [
     '/changePicture' =>[UserController::class, 'changePicture'],
     '/sample-api-request' =>[HomeController::class, 'sampleApiRequest'],
     '/table_room' =>[RoomController::class, 'listRooms'],
-    //'/add_rooms' =>[RoomController::class, 'addRooms'],
+    '/add_rooms' =>[RoomController::class, 'addRooms'],
+    //'/add_rooms' =>[RoomController::class, 'table_room'],
     '/edit_rooms' =>[RoomController::class, 'editRooms'],
 
 
@@ -49,4 +50,5 @@ return [
     '/api/register' => [ApiController::class,'register'],
     '/api/profile-update' => [ApiController::class, 'profileUpdate'],
     '/api/add_rooms' => [ApiController::class, 'addRooms'],
+    '/api/table_room' => [ApiController::class, 'listRooms'],
 ];
