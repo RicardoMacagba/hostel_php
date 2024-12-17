@@ -14,45 +14,6 @@ class RoomController extends Controller
     }
 
     /**
-     * Add a new room
-     *
-     * @param array $params
-     */
-    // public function addRoom($params)
-    // {
-    //     $this->layout = 'simple';
-    //     $this->pageTitle = 'Add Room';
-
-    //     $model = new Room();
-
-    //     if (!empty($params)) {
-    //         $this->validateCsrfToken($params);
-
-    //         $model->room_name = $params['name'];
-    //         $model->room_type = $params['type'];
-    //         $model->price = $params['price'];
-
-    //         if ($model->validate()) {
-    //             if ($model->save()) {
-    //                 self::redirect('/rooms'); // Redirect to the rooms page after adding
-    //             } else {
-    //                 $this->errors[] = "Failed to add the room. Please try again.";
-    //             }
-    //         } else {
-    //             foreach ($model->getErrors() as $field => $errors) {
-    //                 foreach ($errors as $error) {
-    //                     $this->errors[] = $error;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     $this->view('room/add_rooms', [
-    //         'model' => $model,
-    //     ]);
-    // }
-
-    /**
      * Display the rooms list
      *
      * @param array $params
@@ -99,127 +60,139 @@ class RoomController extends Controller
      */
     public function editRooms($params)
     {
+        $this->layout = 'main'; // Set the layout for the page
         $this->pageTitle = 'Edit Room';
+        //$rooms = [];
+        //echo 'wowo';
+        
 
-        // Ensure room data is initialized
-        $room = [];
+        $id = $params['id'] ?? null; // Get the room ID from parameters
+        // if (!$id) {
+        //     echo $id;
+        //     self::redirect('/listRooms', ['error' => 'Invalid Room ID.']);
+        //     return;
+        // }
 
+        // Find the room by ID
+        $rooms = Room::find($id);
+        
+        // if (!$rooms) {
+        //     echo 'wew';
+        //     self::redirect('/listRooms', ['error' => 'Room not found.']);
+        //     return;
+        //     echo $rooms;
+        //     exit;
+        // }
+        echo 'check';
+        echo $rooms;
+        echo $id;
 
+        $errors = [];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Validate CSRF token
+            $this->validateCsrfToken($params);
+
+            // Update the room attributes
+            $rooms->name = trim($params['name'] ?? '');
+            $rooms->type = trim($params['type'] ?? '');
+            $rooms->capacity = isset($params['capacity']) ? $params['capacity'] : 0; // Ensure integer
+            $rooms->price = isset($params['price']) ? $params['price'] : 0.0; // Ensure float
+            $rooms->status = trim($params['status'] ?? 'available'); // Default status to 'available'
+
+            // Validate and save changes
+            if ($rooms->validate()) {
+                if ($rooms->save()) {
+                    self::redirect('/listRooms', ['success' => 'Room updated successfully!']);
+                    return;
+                } else {
+                    $errors[] = 'Failed to update the room. Please try again.';
+                }
+            } else {
+                $errors = array_merge($errors, $rooms->getErrors());
+            }
+        }
+
+        //Pass the room data and errors to the view
+        $viewData = [
+            'rooms' => [
+                //'id' => $rooms->id,
+                'name' => htmlspecialchars($rooms->name ?? '', ENT_QUOTES),
+                'type' => htmlspecialchars($rooms->type ?? '', ENT_QUOTES),
+                'capacity' => htmlspecialchars($rooms->capacity ?? '', ENT_QUOTES), // Cast numeric values to string
+                'price' => htmlspecialchars($rooms->price ?? '', ENT_QUOTES), // Cast numeric values to string
+                'status' => htmlspecialchars($rooms->status ?? '', ENT_QUOTES),
+            ],
+            'errors' => $errors,
+        ];
 
         // Render the edit room view
-        $this->view('rooms/edit_rooms', [
-            'room' => $room,
-            'errors' => $this->errors,
-        ]);
+        $this->view('rooms/edit_rooms', ['rooms' => $rooms], $viewData); //, //$viewData);
     }
 
-
-    /**
-     * Delete a room
-     *
-     * @param array $params
-     */
-    // public function deleteRoom($params)
-    // {
-    //     if (isset($params['id'])) {
-    //         $this->validateCsrfToken($params);
-
-    //         $room = Room::find($params['id']);
-    //         if ($room && $room->delete()) {
-    //             self::redirect('/table_room');
-    //         } else {
-    //             $this->errors[] = "Failed to delete the room.";
-    //         }
-    //     }
-
-    //     self::redirect('/rooms');
-    // }
-
-    public function editRoom($params)
-    {
-        // Fetch room by ID
-        $roomId = $params['id'] ?? null;
-
-        if (!$roomId) {
-            $this->errors[] = "Room ID is required.";
-            return;
-        }
-
-        $room = Room::find($roomId);
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Handle form submission for editing
-            $room->name = trim($params['name']);
-            $room->type = trim($params['type']);
-            $room->price = trim($params['price']);
-
-            if ($room->save()) {
-                $this->errors[] = 'Room updated successfully';
-            } else {
-                $this->errors[] = 'Failed to update room';
-            }
-        } else {
-            // Display edit form with room data
-            return [
-                'room' => $room,
-            ];
-        }
-    }
 
     //method add_rooms here
 
-    /**
-     * Add a new room
-     *
-     * @param array $params
-     */
     public function addRooms($params)
-{
-    $this->layout = 'main'; // Set the layout for the page
-    $this->pageTitle = 'Add Room';
+    {
+        $this->pageTitle = "Add Room";
+        $model = new Room(); // Assuming Room is the model for the 'rooms' table
+        $errors = [];
 
-    $model = new Room();
-    $errors = [];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Assign attributes from the form
+            $model->name = trim($params['name'] ?? '');
+            $model->type = trim($params['type'] ?? '');
+            $model->capacity = isset($params['capacity']) ? (int)$params['capacity'] : 0;
+            $model->price = isset($params['price']) ? (float)$params['price'] : 0.0;
+            $model->status = trim($params['status'] ?? 'available');
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Validate CSRF token
-        $this->validateCsrfToken($params);
+            // Handle room image upload
+            if (isset($_FILES['room_image']) && str_starts_with($_FILES['room_image']['type'], 'image/')) {
+                $uploadDir = __DIR__ . '/../../storage/images/rooms/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
 
-        // Assign attributes to the room model
-        $model->name = trim($params['name'] ?? '');
-        $model->type = trim($params['type'] ?? '');
-        $model->capacity = isset($params['capacity']) ? (int)$params['capacity'] : 0; // Ensure integer
-        $model->price = isset($params['price']) ? (float)$params['price'] : 0.0; // Ensure float
-        $model->status = trim($params['status'] ?? 'available'); // Default status to 'available'
+                $uniqueFileName = uniqid('room_') . '.' . pathinfo($_FILES['room_image']['name'], PATHINFO_EXTENSION);
+                $targetFilePath = $uploadDir . $uniqueFileName;
 
-        // Validate the model and save the room
-        if ($model->validate()) {
-            if ($model->save()) {
-                // Redirect with a success message
-                self::redirect('/table_room', ['success' => 'Room added successfully!']);
+                if (move_uploaded_file($_FILES['room_image']['tmp_name'], $targetFilePath)) {
+                    // Assign the uploaded image filename to the model
+                    $model->image = $uniqueFileName;
+                } else {
+                    $errors[] = "Failed to upload the room image.";
+                }
             } else {
-                $errors[] = 'Failed to add the room. Please try again.';
+                $errors[] = "Invalid or no image file provided.";
             }
-        } else {
-            // Collect validation errors
-            $errors = array_merge($errors, $model->getErrors());
+
+            // Validate the model and save to the database
+            if (empty($errors) && $model->validate()) {
+                if ($model->save()) {
+                    self::redirect('/table_room', ['success' => 'Room added successfully!']);
+                } else {
+                    $errors[] = "Failed to save the room to the database.";
+                }
+            } else {
+                $errors = array_merge($errors, $model->getErrors());
+            }
         }
+
+        // Render the add room view with model data and errors
+        $this->view('rooms/add_rooms', [
+            'model' => $model,
+            'errors' => $errors,
+        ]);
     }
 
-    // Ensure model properties are valid strings for the view
-    $viewData = [
-        'model' => [
-            'name' => htmlspecialchars($model->name ?? '', ENT_QUOTES),
-            'type' => htmlspecialchars($model->type ?? '', ENT_QUOTES),
-            'capacity' => htmlspecialchars((string)$model->capacity ?? '', ENT_QUOTES), // Cast numeric values to string
-            'price' => htmlspecialchars((string)$model->price ?? '', ENT_QUOTES), // Cast numeric values to string
-            'status' => htmlspecialchars($model->status ?? '', ENT_QUOTES),
-        ],
-        'errors' => $errors,
-    ];
-
-    // Render the add room view
-    $this->view('rooms/add_rooms', $viewData);
-}
-
+     /**
+     * Generate a full image URL for the given image filename.
+     *
+     * @param string $image
+     * @return string
+     */
+    public function getImageUrl($image)
+    {
+        return rtrim($_ENV['APP_URL'], '/') . '/storage/images/rooms/' . $image;
+    }
 }

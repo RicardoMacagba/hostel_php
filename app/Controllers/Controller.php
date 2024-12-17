@@ -128,4 +128,35 @@ class Controller {
         }
         $_SESSION['flash'][$type] = $message;
     }
+
+    /**
+     * Process incoming request parameters for any HTTP method.
+     *
+     * @return array The request parameters parsed from GET, POST, PUT, or DELETE.
+     */
+    public function getRequestParams() {
+        $method = $_SERVER['REQUEST_METHOD'];
+        
+        if ($method === 'GET') {
+            return $_GET;
+        }
+
+        if ($method === 'POST') {
+            return $_POST;
+        }
+
+        if ($method === 'PUT' || $method === 'DELETE') {
+            $input = file_get_contents('php://input');
+            $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+
+            if (str_contains($contentType, 'application/json')) {
+                return json_decode($input, true) ?? [];
+            }
+
+            parse_str($input, $params);
+            return $params;
+        }
+
+        return [];
+    }
 }

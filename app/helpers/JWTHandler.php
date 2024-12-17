@@ -61,5 +61,15 @@ class JWTHandler
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
-    
+
+    /**
+     * Generate a full image URL for the given image filename.
+     *
+     * @param string $image
+     * @return string
+     */
+    public function getImageUrl($image)
+    {
+        return rtrim($_ENV['APP_URL'], '/') . '/storage/images/rooms/' . $image;
+    }
 }

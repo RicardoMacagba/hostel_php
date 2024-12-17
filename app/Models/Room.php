@@ -123,64 +123,157 @@ class Room extends Model
      * @param array $params Attributes to update (name, type, price)
      * @return bool Whether the update was successful
      */
-    public function editRoom($params)
-    {
-        // Assign attributes
-        $this->room_name = $params['name'] ?? $this->room_name;
-        $this->room_type = $params['type'] ?? $this->room_type;
-        $this->price = $params['price'] ?? $this->price;
+    // public function updateRoom($id, $data)
+    // {
+    //     // Prepare the SQL query for updating the room
+    //     $query = "UPDATE {$this->table} 
+    //           SET name = :name, 
+    //               type = :type, 
+    //               price = :price, 
+    //               capacity = :capacity, 
+    //               status = :status
+    //           WHERE id = :id";
 
-        // Validate the model
-        if (!$this->validate()) {
-            return false;
-        }
+    //     // Prepare the statement
+    //     $stmt = self::$db->prepare($query);
 
-        // Save the model
-        return $this->save();
-    }
+    //     // Bind the parameters
+    //     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    //     $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
+    //     $stmt->bindParam(':type', $data['type'], PDO::PARAM_STR);
+    //     $stmt->bindParam(':price', $data['price'], PDO::PARAM_STR); // float stored as string
+    //     $stmt->bindParam(':capacity', $data['capacity'], PDO::PARAM_INT);
+    //     $stmt->bindParam(':status', $data['status'], PDO::PARAM_STR);
 
+    //     // Execute the query and return the result
+    //     return $stmt->execute();
+    // }
 
     public function getRoomById($params)
-    {
-        // Extract the room ID from the request parameters
-        $roomId = $params['id'] ?? null;
+{
+    $roomId = $params['id'] ?? null;
 
-        if (!$roomId) {
-            return [
-                'error' => 'Room ID is required',
-            ];
-        }
-
-        // Fetch the room from the database
-        $room = Room::find($roomId);
-
-        if (!$room) {
-            return [
-                'error' => 'Room not found',
-            ];
-        }
-
-        // Return the room data
+    if (!$roomId) {
+        error_log('Room ID not provided in request.');
         return [
-            'rooms' => $room,
+            'error' => 'Room ID is required',
         ];
     }
 
-    public function addRooms()
+    $room = Room::find($roomId);
+
+    if (!$room) {
+        error_log("Room with ID $roomId not found.");
+        return [
+            'error' => 'Room not found',
+        ];
+    }
+
+    return [
+        'rooms' => $room,
+    ];
+}
+
+
+    public function addRooms($params)
     {
-        $query = "INSERT INTO {$this->table} (name, type, capacity, price, status, created_at, updated_at)
-              VALUES (:name, :type, :capacity, :price, :status, NOW(), NOW())";
+        // Initialize an array for errors
+        $errors = [];
+        $imagePath = null;
+
+        // Handle file upload for room image
+        if (isset($_FILES['room_image']) && $_FILES['room_image']['error'] === UPLOAD_ERR_OK) {
+            $imageName = basename($_FILES['room_image']['name']);
+            $imageTmpName = $_FILES['room_image']['tmp_name'];
+            $uploadDir = __DIR__ . '/../../storage/uploads/rooms/';
+
+            // Ensure the upload directory exists
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Generate a unique file name to prevent conflicts
+            $uniqueImageName = uniqid('room_') . '.' . pathinfo($imageName, PATHINFO_EXTENSION);
+
+            // Define the target file path
+            $imagePath = $uploadDir . $uniqueImageName;
+
+            // Move the uploaded file to the uploads directory
+            if (move_uploaded_file($imageTmpName, $imagePath)) {
+                // Save only the filename for storing in the database
+                $imagePath = $uniqueImageName;
+            } else {
+                $errors[] = "Failed to upload the room image.";
+            }
+        }
+
+        // Assign room attributes from the parameters
+        $this->name = trim($params['name'] ?? '');
+        $this->type = trim($params['type'] ?? '');
+        $this->capacity = isset($params['capacity']) ? (int)$params['capacity'] : 0;
+        $this->price = isset($params['price']) ? (float)$params['price'] : 0.0;
+        $this->status = trim($params['status'] ?? 'available');
+        $this->image = $imagePath; // Assign the uploaded image filename
+
+        // Insert the room into the database
+        $query = "INSERT INTO {$this->table} (name, type, capacity, price, status, room_image, created_at, updated_at)
+              VALUES (:name, :type, :capacity, :price, :status, :image, NOW(), NOW())";
 
         $stmt = self::$db->prepare($query);
 
-        // Bind the room attributes to the query
+        // Bind parameters to the query
         $stmt->bindParam(':name', $this->name);
         $stmt->bindParam(':type', $this->type);
         $stmt->bindParam(':capacity', $this->capacity, PDO::PARAM_INT);
-        $stmt->bindParam(':price', $this->price, PDO::PARAM_STR); // Use string for decimal values
+        $stmt->bindParam(':price', $this->price, PDO::PARAM_STR); // Use string for decimals
         $stmt->bindParam(':status', $this->status);
+        $stmt->bindParam(':image', $this->image);
 
-        // Execute the query and return true if successful, false otherwise
-        return $stmt->execute();
+        // Execute the query
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            $errors[] = "Failed to save the room to the database.";
+            return false;
+        }
     }
+
+     /**
+     * Generate a full image URL for the given image filename.
+     *
+     * @param string $image
+     * @return string
+     */
+    public function getImageUrl($image)
+    {
+        return rtrim($_ENV['APP_URL'], '/') . '/storage/images/rooms/' . $image;
+    }
+
+    public function editRooms($id, $data)
+{
+    // Basic validation
+    if (empty($data['name']) || empty($data['type']) || empty($data['price']) || empty($data['status'])) {
+        throw new \InvalidArgumentException('Missing required parameters for updating room.');
+    }
+
+    $query = "UPDATE {$this->table} 
+              SET name = :name, 
+                  type = :type, 
+                  price = :price, 
+                  capacity = :capacity, 
+                  status = :status 
+              WHERE id = :id";
+
+    $stmt = self::$db->prepare($query);
+
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
+    $stmt->bindParam(':type', $data['type'], PDO::PARAM_STR);
+    $stmt->bindParam(':price', $data['price'], PDO::PARAM_STR); 
+    $stmt->bindParam(':capacity', $data['capacity'], PDO::PARAM_INT);
+    $stmt->bindParam(':status', $data['status'], PDO::PARAM_STR);
+
+    return $stmt->execute();
+}
+
 }

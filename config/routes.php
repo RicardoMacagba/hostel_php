@@ -40,7 +40,6 @@ return [
     '/sample-api-request' =>[HomeController::class, 'sampleApiRequest'],
     '/table_room' =>[RoomController::class, 'listRooms'],
     '/add_rooms' =>[RoomController::class, 'addRooms'],
-    //'/add_rooms' =>[RoomController::class, 'table_room'],
     '/edit_rooms' =>[RoomController::class, 'editRooms'],
 
 
@@ -48,7 +47,8 @@ return [
     '/api/users' => [ApiController::class,'users'],
     '/api/login' => [ApiController::class,'login'],
     '/api/register' => [ApiController::class,'register'],
-    '/api/profile-update' => [ApiController::class, 'profileUpdate'],
-    '/api/add_rooms' => [ApiController::class, 'addRooms'],
-    '/api/table_room' => [ApiController::class, 'listRooms'],
+    '/api/profileUpdate' => [ApiController::class, 'profileUpdate'],
+    '/api/addRooms' => [ApiController::class, 'addRooms'],
+    '/api/listRooms' => [ApiController::class, 'listRooms'],
+    '/api/updateRoom' => [ApiController::class, 'updateRoom'],
 ];

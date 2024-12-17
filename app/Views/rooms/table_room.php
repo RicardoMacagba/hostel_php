@@ -22,14 +22,14 @@ $menuItems = [
     </div>
 
     <!-- Search field aligned to the right -->
-    <form method="GET" action="<?= route('/listRooms') ?>">
+    <form method="GET">
         <div class="flex justify-end items-center mb-4 space-x-2">
             <div class="relative w-64">
                 <input
                     type="text"
                     id="searchInput"
                     name="q"
-                    value="<?= htmlspecialchars($_GET['q'] ?? '') ?>"
+                    value="<?= $_GET['q'] ?? '' ?>"
                     class="border border-gray-300 p-2 pl-2 pr-12 rounded-md w-full"
                     placeholder="Search...">
             </div>
@@ -47,6 +47,7 @@ $menuItems = [
             <tr class="bg-gray-200 text-left">
                 <th class="py-3 px-4 text-sm font-medium text-gray-700">No.</th>
                 <th class="py-3 px-4 text-sm font-medium text-gray-700">Room Name</th>
+                <th class="py-3 px-4 text-sm font-medium text-gray-700">Room Image</th>
                 <th class="py-3 px-4 text-sm font-medium text-gray-700">Room Type</th>
                 <th class="py-3 px-4 text-sm font-medium text-gray-700">Capacity</th>
                 <th class="py-3 px-4 text-sm font-medium text-gray-700">Status</th>
@@ -60,16 +61,27 @@ $menuItems = [
                     <tr class="<?= $key % 2 === 0 ? 'bg-gray-50' : 'bg-white' ?>">
                         <td class="py-3 px-4 text-sm text-gray-700"><?= $key + 1 ?></td>
                         <td class="py-3 px-4 text-sm text-gray-700"><?= htmlspecialchars($room->name) ?></td>
+
+                        <td class="py-3 px-4 text-sm text-gray-700">
+                            <?php if (!empty($room->room_image)): ?>
+                                <img src="<?= htmlspecialchars($room->room_image) ?>" alt="Room Image" class="w-16 h-16 object-cover rounded-md">
+                            <?php else: ?>
+                                No image
+                            <?php endif; ?>
+                        </td>
+
                         <td class="py-3 px-4 text-sm text-gray-700"><?= htmlspecialchars($room->type) ?></td>
                         <td class="py-3 px-4 text-sm text-gray-700"><?= htmlspecialchars($room->capacity) ?></td>
                         <td class="py-3 px-4 text-sm text-gray-700"><?= htmlspecialchars($room->status) ?></td>
                         <td class="py-3 px-4 text-sm text-gray-700"><?= date('Y-m-d H:i', strtotime($room->created_at)) ?></td>
                         <td class="py-3 px-4 text-sm text-gray-700 space-x-2">
+                            <!-- View/Edit button -->
                             <a href="<?= route('/edit_rooms', ['id' => $room->id]) ?>"
                                 class="inline-flex items-center text-white bg-green-500 border border-green-500 py-2 px-4 rounded-md hover:bg-green-600 hover:border-green-600">
                                 <span class="material-icons mr-2">edit</span>
                                 Edit
                             </a>
+                            <!-- Delete button -->
                             <form method="POST" class="inline-block">
                                 <!-- CSRF token -->
                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES) ?>" />

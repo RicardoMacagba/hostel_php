@@ -9,7 +9,7 @@ $menuItems = [
 ?>
 
 
-<form method="POST" class="max-w-md mt-20 mx-auto p-6 bg-white rounded shadow-md">
+<form method="POST" class="max-w-md mt-20 mx-auto p-6 bg-white rounded shadow-md" enctype="multipart/form-data">
     <h2 class="text-3xl font-semibold mb-4">Add Room</h2>
 
     <!-- Display error messages if necessary -->
@@ -72,9 +72,14 @@ $menuItems = [
             class="w-full mt-1 p-2 border border-gray-300 rounded-md">
             <option value="" disabled <?php echo empty($model->status) ? 'selected' : ''; ?>>Select room status</option>
             <option value="available" <?php echo ($model->status ?? '') === 'available' ? 'selected' : ''; ?>>Available</option>
-            <option value="occupied" <?php echo ($model->status ?? '') === 'occupied' ? 'selected' : ''; ?>>Occupied</option>
-            <option value="maintenance" <?php echo ($model->status ?? '') === 'maintenance' ? 'selected' : ''; ?>>Maintenance</option>
+            <option value="occupied" <?php echo ($model->status ?? '') === 'unavailable' ? 'selected' : ''; ?>>Unavailable</option>
         </select>
+    </div>
+
+    <!-- Image upload -->
+    <div class="mb-4">
+        <label for="room_image" class="block text-sm font-medium">Room Image</label>
+        <input type="file" name="room_image" id="room_image" class="w-full mt-1 p-2 border border-gray-300 rounded-md" />
     </div>
 
     <!-- Submit button -->

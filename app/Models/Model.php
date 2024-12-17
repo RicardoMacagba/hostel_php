@@ -168,7 +168,7 @@ class Model
     public static function find($id)
     {
         $instance = new static(); // Get instance of the calling class
-        $query = "SELECT * FROM {$instance->table} WHERE {$instance->primaryKey} = :id";
+        $query = "SELECT * FROM {$instance->table} WHERE {$instance->primaryKey} = :id LIMIT 1";
         $stmt = self::$db->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
@@ -407,12 +407,12 @@ class Model
         return $instances;
     }
 
-    public function getRoomById($roomId)
-    {
-        $db = new PDO('mysql:host=localhost;dbname=your_database', 'username', 'password');
-        $stmt = $db->prepare("SELECT * FROM rooms WHERE id = :id");
-        $stmt->execute(['id' => $roomId]);
+    // public function getRoomById($roomId)
+    // {
+    //     $db = new PDO('mysql:host=localhost;dbname=your_database', 'username', 'password');
+    //     $stmt = $db->prepare("SELECT * FROM rooms WHERE id = :id");
+    //     $stmt->execute(['id' => $roomId]);
 
-        return $stmt->fetch(PDO::FETCH_OBJ);
-    }
+    //     return $stmt->fetch(PDO::FETCH_OBJ);
+    // }
 }
