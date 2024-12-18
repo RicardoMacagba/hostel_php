@@ -64,7 +64,7 @@ class RoomController extends Controller
         $this->pageTitle = 'Edit Room';
         //$rooms = [];
         //echo 'wowo';
-        
+
 
         $id = $params['id'] ?? null; // Get the room ID from parameters
         // if (!$id) {
@@ -75,7 +75,7 @@ class RoomController extends Controller
 
         // Find the room by ID
         $rooms = Room::find($id);
-        
+
         // if (!$rooms) {
         //     echo 'wew';
         //     self::redirect('/listRooms', ['error' => 'Room not found.']);
@@ -185,7 +185,7 @@ class RoomController extends Controller
         ]);
     }
 
-     /**
+    /**
      * Generate a full image URL for the given image filename.
      *
      * @param string $image
